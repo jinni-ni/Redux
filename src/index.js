@@ -1,38 +1,46 @@
 import { createStore } from "redux";
 
-const add = document.getElementById("add");
-const minus = document.getElementById("minus");
-const number = document.querySelector("span");
+const form = document.querySelector("form");
+const input = document.querySelector("input");
+const ul = document.querySelector("ul");
 
-const ADD = "ADD";
-const MINUS = "MINUS";
+const ADD_TODO = "ADD_TODO";
+const DELETE_TODO = "DELETE_TODO";
 
-const countModifier = (count = 0, action) => {
+const reducer = (state = [], action) => {
+  console.log("text :", action.text);
+  console.log("action: ", action);
   switch (action.type) {
-    case ADD:
-      return count + 1;
-    case MINUS:
-      return count - 1;
+    case ADD_TODO:
+      // push 하는 것을 mutation 이라고 하는데,
+      // 절대 사용 하면 안됨. state spread 후 추가
+      // return state.push(action.texxt)
+
+      return [...state, { text: action.text, id: Date.now() }];
+    // return [...state, {text:action.text}]
+    case DELETE_TODO:
+      return [];
     default:
-      return count;
+      return state;
   }
 };
 
-const countStore = createStore(countModifier);
+const store = createStore(reducer);
 
-// state(count) 변경 시 호출
-countStore.subscribe(() => {
-  number.innerText = countStore.getState();
-});
+store.subscribe(() => console.log(store.getState()));
 
-// dispatch 매개변수로 type 을 설정하여 reducer state 관리
-const handleAdd = () => {
-  countStore.dispatch({ type: ADD });
+const createToDo = (toDo) => {
+  const li = document.createElement("li");
+  li.innerText = toDo;
+  ul.appendChild(li);
 };
 
-const handleMinus = () => {
-  countStore.dispatch({ type: MINUS });
+const onSubmit = (e) => {
+  e.preventDefault();
+  const toDo = input.value;
+  input.value = "";
+  store.dispatch({ type: ADD_TODO, text: toDo });
+  // createToDo(toDo);
 };
 
-add.addEventListener("click", handleAdd);
-minus.addEventListener("click", handleMinus);
+form.addEventListener("submit", onSubmit);
